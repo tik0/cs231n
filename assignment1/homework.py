@@ -72,7 +72,7 @@ print('x')
 
 # %%
 dists = classifier.compute_distances_two_loops(x_test)
-print(dists.shape)
+print(dists)
 
 # %%
 plt.imshow(dists, interpolation='none')
@@ -80,11 +80,37 @@ plt.show()
 
 
 # %%
-y_test_pred = classifier.predict_labels(dists, k=1)
-print(y_test_pred, y_test)
-num_correct = np.sum(y_test_pred == y_test)
-accuracy = float(num_correct)/num_test
-print('%d / %d correct => accuracy: %f' % (
-    num_correct,
-    num_test,
-    accuracy))
+def get_accuracy(k):
+    y_test_pred = classifier.predict_labels(dists, k)
+    # print(y_test_pred, y_test)
+    num_correct = np.sum(y_test_pred == y_test)
+    accuracy = float(num_correct)/num_test
+    # print('%d / %d correct => accuracy: %f' % (
+#     num_correct,
+#     num_test,
+#     accuracy))
+
+    return accuracy
+
+
+x = np.arange(1, 50)
+y = list(map(lambda x: get_accuracy(x), x))
+plt.scatter(x, y)
+plt.show()
+
+# %%
+dists_one = classifier.compute_distances_one_loop(x_test)
+difference = np.linalg.norm(dists-dists_one, ord='fro')
+print('Difference was: %f' % (difference, ))
+if difference < 0.001:
+    print('Good! The distance matrices are the same')
+else:
+    print('Uh-oh! The distance matrices are different')
+
+# %%
+M = np.dot(x_test, x_train.T)
+print(M.shape)
+te = np.square(x_test).sum(axis=1)
+tr = np.square(x_train).sum(axis=1)
+print(te.shape, tr.shape)
+print((M+tr+te.T).shape)
