@@ -135,14 +135,14 @@ class KNearestNeighbor(object):
         #       and two broadcast sums.                                         #
         #########################################################################
         M = np.dot(X, self.X_train.T)
-        print(M.shape)
+        # print(M.shape)
         te = np.square(X).sum(axis=1)
         tr = np.square(self.X_train).sum(axis=1)
         dists = np.sqrt(-2*M+tr+np.matrix(te).T)  # (a2+b2-2ab)=(a-b)2
         #########################################################################
         #                         END OF YOUR CODE                              #
         #########################################################################
-        return dists
+        return np.asarray(dists)
 
     def predict_labels(self, dists, k=1):
         """
@@ -159,8 +159,6 @@ class KNearestNeighbor(object):
         """
         num_test = dists.shape[0]
         y_pred = np.zeros(num_test)
-
-        #
         for i in range(num_test):
             # A list of length k storing the labels of the k nearest neighbors to
             # the ith test point.
@@ -173,7 +171,10 @@ class KNearestNeighbor(object):
             # Hint: Look up the function numpy.argsort.                             #
             #########################################################################
             closest_y = []
-            closest_y = np.argsort(dists[i])[:k]
+
+            # closest_y = np.argsort(dists[i])[:k]
+            closest_y = self.y_train[np.argsort(dists[i])[:k]]
+            # xx = self.y_train[tuple(closest_y)]
             #########################################################################
             # TODO:                                                                 #
             # Now that you have found the labels of the k nearest neighbors, you    #
@@ -181,9 +182,12 @@ class KNearestNeighbor(object):
             # Store this label in y_pred[i]. Break ties by choosing the smaller     #
             # label.                                                                #
             #########################################################################
-            xx = np.asarray(
-                list(map(lambda x: self.y_train[x], closest_y)))
-            y_pred[i] = np.argmax(np.bincount(xx))
+            # https://stackoverflow.com/questions/5508352/indexing-numpy-array-with-another-numpy-array
+
+            # y_pred[i] = np.argmax(np.bincount(xx))
+            # print(closest_y.shape)
+
+            y_pred[i] = np.argmax(np.bincount(closest_y[0]))
             #########################################################################
             #                           END OF YOUR CODE                            #
             #########################################################################
